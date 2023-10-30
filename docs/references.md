@@ -2,7 +2,7 @@
 
 By default, every type in _Tungsten_ is a value type. A reference can point to any value type and modifying a reference will modify the value behind it.
 
-> **Note:** _Tungsten_ uses `^` instead of `*` to avoid confusion between references and C-style pointers as references can't be used for mathematical expressions.
+> **Note:** References are essentially pointers, but _Tungsten_ uses `^` instead of `*` to avoid confusion between references and C-style pointers as references can't be used for mathematical expressions.
 
 ## Syntax
 
@@ -29,16 +29,13 @@ void addOne(i32^ integer)
 main
 {
     i32 num = 0;
-    addOne(num);
+    addOne(num); // num == 1.
     print(num); // Prints "1".
-}
 ```
 
 It's possible to create new references inside of a function call. These are only available in the return scope and get discarded after.
 
 ```
-main
-{
     addOne(i32^ num)
     {
         print(num); // Prints "1".

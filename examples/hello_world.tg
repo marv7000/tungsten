@@ -1,0 +1,8 @@
+include std;
+
+namespace helloWorld;
+
+main
+{
+    print("Hello, world!");
+}
