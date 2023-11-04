@@ -23,7 +23,7 @@ namespace smelt
         mVersion = p.GetString("Version");
 
         // Parse project type.
-        auto projectType = p.GetString("Type");
+        auto& projectType = p.GetString("Type");
         if (projectType == "Application") mType = ProjectType::Application;
         else if (projectType == "Library") mType = ProjectType::Library;
 
