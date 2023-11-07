@@ -1,6 +1,4 @@
-include std;
-
-namespace helloWorld;
+namespace HelloWorld;
 
 main
 {

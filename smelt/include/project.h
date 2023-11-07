@@ -1,12 +1,11 @@
 #pragma once
 #include "settings.h"
+
 #include <vector>
 #include <string>
+#include <filesystem>
 
-#define SM_PROJECT_FILE "project.txt"
-#define SM_PROJECT_NAME "Name"
-#define SM_PROJECT_VERSION "Version"
-
+#define SM_FILE_ENDING ".tg"
 
 namespace smelt
 {
@@ -20,13 +19,16 @@ namespace smelt
     class Project
     {
         Settings* mSettings;
-
+	public:
         std::string mName;
         std::string mVersion;
         ProjectType mType;
         std::vector<std::string> mDependencies;
+		std::vector<std::filesystem::path> mFiles;
 
     public:
-        Project(Settings* settings);
+        explicit Project(Settings* settings);
+
+		void Compile();
     };
 }

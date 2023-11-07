@@ -1,22 +1,20 @@
 #include "project.h"
-#include "shared.h"
 #include "config.h"
+#include "parser.h"
+#include "lexer.h"
 
 #include <cassert>
 #include <iostream>
-#include <fstream>
 
 namespace smelt
 {
     Project::Project(Settings* settings)
     {
-        std::cout << SM_PREFIX "Loading project...\n";
-
         assert(settings);
         mSettings = settings;
 
         // Parse the main project file.
-        auto p = Config(SM_PROJECT_FILE);
+        auto p = Config(mSettings->ProjectPath + "/project.txt");
 
         // Assign properties from the config file.
         mName = p.GetString("Name");
@@ -29,7 +27,31 @@ namespace smelt
 
         mDependencies = p.GetStringArray("Dependencies");
 
-        for (auto& dep : mDependencies)
-            std::cout << dep << "\n";
+		// Check all dependencies and add every Tungsten file we can find.
+		for (auto& dep : mDependencies)
+		{
+			for (auto& pa : std::filesystem::recursive_directory_iterator(dep))
+			{
+				if (pa.path().extension() != SM_FILE_ENDING)
+					continue;
+
+				mFiles.push_back(pa.path());
+			}
+		}
     }
+
+	void Project::Compile()
+	{
+		// For each file.
+		for (auto& file : mFiles)
+		{
+			// Tokenize the file.
+			auto* lexer = new Lexer(file);
+			auto* parser = new Parser(lexer);
+
+			// Clean up.
+			delete lexer;
+			delete parser;
+		}
+	}
 }
