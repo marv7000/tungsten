@@ -11,9 +11,6 @@ namespace smelt
     public:
 		TokenType mLastToken;
 		Lexer* mLexer;
-		std::unique_ptr<llvm::LLVMContext> mContext;
-		std::unique_ptr<llvm::IRBuilder<>> mBuilder;
-		std::unique_ptr<llvm::Module> mModule;
 
 		explicit Parser(Lexer* lexer);
 
@@ -25,5 +22,9 @@ namespace smelt
 		{
 			return mLastToken = mLexer->GetToken();
 		}
+
+		/// \brief 		Expect the next token in the stream to be a certain type. If it isn't, throw a fitting message.
+		/// \param type The type to check for.
+	    void Expect(TokenType type);
     };
 }

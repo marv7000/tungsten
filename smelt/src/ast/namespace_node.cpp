@@ -2,14 +2,21 @@
 
 namespace smelt
 {
-
-	NamespaceNode::NamespaceNode(const std::string& value)
+	NamespaceNode::NamespaceNode(Parser* parser)
 	{
-		mValue = value;
+		// Eat namespace token.
+		parser->GetNextToken();
+		parser->Expect(TokenType::Identifier);
+
+		mName = parser->mLexer->GetIdentifier();
+
+		// Eat semicolon.
+		parser->GetNextToken();
+		parser->Expect(TokenType::SySemicolon);
 	}
 
-	llvm::Value* NamespaceNode::CodeGen(Parser* parser)
+	llvm::Value* NamespaceNode::CodeGen()
 	{
-		return INode::CodeGen(parser);
+
 	}
 }

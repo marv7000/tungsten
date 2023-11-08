@@ -48,7 +48,7 @@ namespace smelt
 			// Tokenize the file.
 			auto* lexer = new Lexer(file);
 			auto* parser = new Parser(lexer);
-
+			parser->Parse();
 			// Clean up.
 			delete lexer;
 			delete parser;

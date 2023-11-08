@@ -39,11 +39,13 @@ namespace smelt
 		KwStack,
 		KwMain,
 
-		LiString,
-		LiChar,
-		LiInt,
-		LiFloat,
-		LiDouble,
-		LiBool
+		LiString = 1 << 5,
+		LiChar = 1 << 6,
+		LiInt = 1 << 7,
+		LiFloat = 1 << 8,
+		LiDouble = 1 << 9,
+		LiBool = 1 << 10,
+		LiNum = LiChar | LiInt | LiFloat | LiDouble | LiBool,
+		LiAll = LiString | LiChar | LiInt | LiFloat | LiDouble | LiBool,
 	};
 }

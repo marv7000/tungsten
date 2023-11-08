@@ -5,6 +5,10 @@ namespace smelt
 	Lexer::Lexer(const std::filesystem::path& path)
 	{
 		mStream = std::ifstream(path);
+		mLineNumber = 1;
+		mColNumber = 1;
+		mLastColNumber = 1;
+		mPath = path;
 	}
 
 	TokenType Lexer::GetToken()
@@ -14,7 +18,7 @@ namespace smelt
 		// Ignore whitespace.
 		while (isspace(mLastChar))
 		{
-			mLastChar = mStream.get();
+			mLastChar = Next();
 			if (mStream.fail())
 				return TokenType::Eof;
 		}
@@ -22,12 +26,12 @@ namespace smelt
 		// Comments.
 		if (mLastChar == '/')
 		{
-			mLastChar = mStream.get();
+			mLastChar = Next();
 			if (mLastChar == '/')
 			{
 				while (mLastChar != EOF && mLastChar != '\n' && mLastChar != '\r')
 				{
-					mLastChar = mStream.get();
+					mLastChar = Next();
 				}
 				if (mLastChar != EOF)
 					return GetToken();
@@ -65,12 +69,12 @@ namespace smelt
 		if (isalpha(mLastChar))
 		{
 			mLastIdentifier = (char)mLastChar;
-			while (isalnum(mLastChar = mStream.get()))
+			while (isalnum(mLastChar = Next()))
 			{
 				mLastIdentifier += (char)mLastChar;
 			}
 			// Seek back one char.
-			mStream.seekg(-1, std::ios_base::cur);
+			Prev();
 
 			if (mLastIdentifier == "include")
 				return TokenType::KwInclude;
@@ -94,7 +98,7 @@ namespace smelt
 		if (mLastChar == '"')
 		{
 			mLastLiteral = "";
-			while ((mLastChar = mStream.get()) != '"')
+			while ((mLastChar = Next()) != '"')
 			{
 				mLastLiteral += (char)mLastChar;
 			}
@@ -103,10 +107,10 @@ namespace smelt
 		// Character literal.
 		if (mLastChar == '\'')
 		{
-			mLastChar = mStream.get();
+			mLastChar = Next();
 			while (mLastChar != '\'')
 			{
-				mLastChar = mStream.get();
+				mLastChar = Next();
 			}
 			return TokenType::LiChar;
 		}
@@ -115,7 +119,7 @@ namespace smelt
 		{
 			// Parse the literal.
 			mLastLiteral = (char)mLastChar;
-			while (isdigit(mLastChar = mStream.get()) ||
+			while (isdigit(mLastChar = Next()) ||
 				mLastChar == '.' || mLastChar == '-' || // Decimal point and sign.
 				mLastChar == 'f' || mLastChar == 'F' || // Float suffix.
 				mLastChar == 'x' || mLastChar == 'X' || // Hex literals.
@@ -126,7 +130,7 @@ namespace smelt
 				mLastLiteral += (char)mLastChar;
 			}
 			// Seek back one char.
-			mStream.seekg(-1, std::ios_base::cur);
+			Prev();
 
 			// Decimals
 			if (mLastLiteral.find('.') != std::string::npos)
@@ -155,5 +159,15 @@ namespace smelt
 	Lexer::~Lexer()
 	{
 		mStream.close();
+	}
+
+	u32 Lexer::GetLineNumber() const
+	{
+		return mLineNumber;
+	}
+
+	u32 Lexer::GetColNumber() const
+	{
+		return mColNumber;
 	}
 }

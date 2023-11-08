@@ -1,4 +1,11 @@
+// This is a test to check basic language functionality.
 namespace HelloWorld;
+
+struct MyStruct
+{
+    i32 myField;
+    MyType myOtherField;
+}
 
 main
 {

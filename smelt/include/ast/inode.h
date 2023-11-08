@@ -9,7 +9,7 @@ namespace smelt
 	class INode
 	{
 	public:
-		inline virtual llvm::Value* CodeGen(Parser* parser) { return nullptr; }
+		inline virtual llvm::Value* CodeGen() { return nullptr; }
 		virtual ~INode() = default;
 	};
 }

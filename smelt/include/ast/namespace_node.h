@@ -1,14 +1,17 @@
 #pragma once
+#include <vector>
 #include "inode.h"
+#include "struct_node.h"
+#include "function_node.h"
 
 namespace smelt
 {
 	/// \brief 	Represents a namespace by storing its name, the respective function and type identifiers.
 	class NamespaceNode : public INode
 	{
-		std::string mValue;
+		std::string mName;
 	public:
-		explicit NamespaceNode(const std::string& value);
-		llvm::Value* CodeGen(Parser* parser) override;
+		explicit NamespaceNode(Parser* parser);
+		llvm::Value* CodeGen() override;
 	};
 }

@@ -19,3 +19,4 @@ using size = std::size_t;
 				R"( |___/_| |_| |_|\___|_|\__|)" "\t" "\n"
 
 #define SM_PREFIX "> "
+#define SM_ERROR "ERROR: "
