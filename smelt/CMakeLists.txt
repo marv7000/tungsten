@@ -13,6 +13,7 @@ add_executable(smelt
         src/ast/namespace_node.cpp
 )
 target_include_directories(smelt PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 
 # Windows
 if(WIN32)
@@ -22,8 +23,7 @@ elseif(UNIX)
 endif()
 
 # LLVM
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/llvm-project/llvm)
-llvm_map_components_to_libnames(llvm_libs support core ir)
-target_link_libraries(smelt ${llvm_libs})
-message(FATAL_ERROR "${LLVM_AVAILABLE_LIBS}")
-target_include_directories(smelt PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ext/llvm-project/llvm/include)
+find_package(LLVM REQUIRED CONFIG)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+llvm_config(smelt USE_SHARED support core irreader)

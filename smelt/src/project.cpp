@@ -14,7 +14,7 @@ namespace smelt
         mSettings = settings;
 
         // Parse the main project file.
-        auto p = Config(mSettings->ProjectPath + "/project.txt");
+        auto p = Config(mSettings->ProjectPath + "project.txt");
 
         // Assign properties from the config file.
         mName = p.GetString("Name");
