@@ -1,12 +1,35 @@
 #pragma once
-#include <llvm/IR/Type.h>
-#include "namespace_node.h"
+#include "shared.h"
+#include <string>
+#include <vector>
 
 namespace smelt
 {
 	struct Type
 	{
-		NamespaceNode* mNamespace;
-		llvm::Type* mType;
+		std::string mNamespace;
+		std::string mName;
+		bool mIsArray;
+		bool mIsReference;
+		i64 mArraySize = -1;
+		std::vector<Type> mGenericTypes;
+
+		inline bool operator ==(const Type& other) const
+		{
+			bool cmp = (mNamespace == other.mNamespace &&
+				mName == other.mName &&
+				mIsArray == other.mIsArray &&
+				mIsReference == other.mIsReference &&
+				mArraySize == other.mArraySize);
+
+			if (mGenericTypes.size() != other.mGenericTypes.size())
+				return false;
+			// Recursively traverse all generics.
+			for (i64 i = 0; i < mGenericTypes.size(); i++)
+			{
+				cmp &= (mGenericTypes[i] == other.mGenericTypes[i]);
+			}
+			return cmp;
+		}
 	};
 }

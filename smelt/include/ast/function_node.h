@@ -3,16 +3,17 @@
 #include <vector>
 #include "parser.h"
 #include "inode.h"
+#include "type.h"
 
 namespace smelt
 {
 	class FunctionNode : public INode
 	{
+		Type mReturnType;
 		std::string mName;
-		std::string mReturnType;
-		std::vector<std::string> mArgs;
+		std::vector<Type> mArgs;
 	public:
-		explicit FunctionNode(Parser* parser);
+		explicit FunctionNode(Parser* parser, const Type& returnType, const std::string& name);
 
 		llvm::Value* CodeGen() override;
 	};

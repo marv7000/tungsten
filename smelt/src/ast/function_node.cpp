@@ -4,34 +4,40 @@
 
 namespace smelt
 {
-	FunctionNode::FunctionNode(Parser* parser)
+	FunctionNode::FunctionNode(Parser* parser, const Type& returnType, const std::string& name)
 	{
-		parser->GetNextToken();
+		mReturnType = returnType;
+		mName = name;
 		// Special case: main method.
 		if (parser->mLastToken == TokenType::KwMain)
 		{
-			mReturnType = "i32";
-			mArgs.emplace_back("str[]");
-			mName = "main";
+			mArgs.emplace_back("", "str", true, false, -1);
 		}
 		else
 		{
-			while (parser->GetNextToken() != TokenType::BrClRound)
+			parser->GetNextToken();
+			parser->Expect(TokenType::BrOpRound);
+			parser->GetNextToken();
+			while (parser->mLastToken != TokenType::Eof)
 			{
-				parser->Expect(TokenType::SyComma);
-			}
+				Type t = parser->ParseType();
 
-			parser->Expect(TokenType::Identifier);
+				parser->Expect(TokenType::Identifier);
+
+				mArgs.emplace_back(t);
+				if (parser->GetNextToken() == TokenType::BrClRound)
+					break;
+			}
 		}
 
-		std::cout << "Parsed function \"" << mName << "\" with return type \"" << mReturnType << "\" and args:\n";
+		std::cout << "Parsed function \"" << mName << "\" with return type \"" << mReturnType.mName << "\" and args:\n";
 		for (auto& arg : mArgs)
 		{
-			std::cout << "\tType: " << arg << "\n";
+			std::cout << "\tType: " << arg.mName << "\n";
 		}
 	}
 
-	llvm::Value *FunctionNode::CodeGen()
+	llvm::Value* FunctionNode::CodeGen()
 	{
 		return INode::CodeGen();
 	}

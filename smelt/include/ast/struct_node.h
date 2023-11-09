@@ -1,11 +1,12 @@
 #pragma once
 #include "inode.h"
+#include "type.h"
 
 namespace smelt
 {
 	struct StructField
 	{
-		std::string mType;
+		Type mType;
 		std::string mName;
 	};
 

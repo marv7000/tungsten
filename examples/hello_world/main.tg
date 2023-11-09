@@ -1,10 +1,13 @@
-// This is a test to check basic language functionality.
 namespace HelloWorld;
 
-struct MyStruct
+struct Foo
 {
-    i32 myField;
-    MyType myOtherField;
+    i32 bar;
+}
+
+void myFn(i32 foo)
+{
+
 }
 
 main

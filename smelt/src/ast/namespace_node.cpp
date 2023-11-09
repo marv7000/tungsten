@@ -13,6 +13,8 @@ namespace smelt
 		// Eat semicolon.
 		parser->GetNextToken();
 		parser->Expect(TokenType::SySemicolon);
+
+		parser->mLastNamespace = mName;
 	}
 
 	llvm::Value* NamespaceNode::CodeGen()

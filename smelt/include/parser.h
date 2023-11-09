@@ -1,6 +1,7 @@
 #pragma once
 #include "shared.h"
 #include "lexer.h"
+#include "ast/type.h"
 
 #include <llvm/IR/IRBuilder.h>
 
@@ -9,6 +10,9 @@ namespace smelt
     class Parser
     {
     public:
+	    std::string mLastNamespace;
+	    std::string mLastStruct;
+	    std::string mLastFn;
 		TokenType mLastToken;
 		Lexer* mLexer;
 
@@ -18,13 +22,17 @@ namespace smelt
 		/// \return The root node containing the entire tree.
 		void Parse();
 
-		inline TokenType GetNextToken()
-		{
-			return mLastToken = mLexer->GetToken();
-		}
+	    /// \brief 		Expect the next token in the stream to be a certain type. If it isn't, throw a fitting message.
+	    /// \param type The type to check for.
+	    void Expect(TokenType type) const;
 
-		/// \brief 		Expect the next token in the stream to be a certain type. If it isn't, throw a fitting message.
-		/// \param type The type to check for.
-	    void Expect(TokenType type);
+		TokenType GetNextToken();
+
+		/// \brief 			Gets a specific line in the file.
+		/// \param index 	The line number, 1-based index.
+		/// \return			The line as a string.
+		[[nodiscard]] std::string GetLine(u32 index) const;
+
+		Type ParseType();
     };
 }

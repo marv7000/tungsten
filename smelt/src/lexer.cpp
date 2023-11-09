@@ -8,12 +8,16 @@ namespace smelt
 		mLineNumber = 1;
 		mColNumber = 1;
 		mLastColNumber = 1;
+		mTokenStartLine = 1;
+		mTokenStartCol = 1;
 		mPath = path;
 	}
 
 	TokenType Lexer::GetToken()
 	{
 		mLastChar = ' ';
+		mTokenStartLine = GetLineNumber();
+		mTokenStartCol = GetColNumber();
 
 		// Ignore whitespace.
 		while (isspace(mLastChar))
@@ -69,9 +73,11 @@ namespace smelt
 		if (isalpha(mLastChar))
 		{
 			mLastIdentifier = (char)mLastChar;
-			while (isalnum(mLastChar = Next()))
+			mLastChar = Next();
+			while (isalnum(mLastChar))
 			{
 				mLastIdentifier += (char)mLastChar;
+				mLastChar = Next();
 			}
 			// Seek back one char.
 			Prev();
@@ -169,5 +175,15 @@ namespace smelt
 	u32 Lexer::GetColNumber() const
 	{
 		return mColNumber;
+	}
+
+	u32 Lexer::GetTokenLineNumber() const
+	{
+		return mTokenStartLine;
+	}
+
+	u32 Lexer::GetTokenColNumber() const
+	{
+		return mTokenStartCol;
 	}
 }

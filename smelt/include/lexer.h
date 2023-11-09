@@ -19,6 +19,9 @@ namespace smelt
 		u32 mLineNumber;
 		u32 mLastColNumber;
 		u32 mColNumber;
+
+		u32 mTokenStartLine;
+		u32 mTokenStartCol;
 	public:
 		/// \brief 		Instantiates a new lexer over a file.
 		/// \param path The path to the file.
@@ -65,6 +68,8 @@ namespace smelt
 
 		u32 GetLineNumber() const;
 		u32 GetColNumber() const;
+		u32 GetTokenLineNumber() const;
+		u32 GetTokenColNumber() const;
 
 		inline std::ifstream& GetStream()
 		{
