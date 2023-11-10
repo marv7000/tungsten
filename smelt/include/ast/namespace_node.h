@@ -12,6 +12,6 @@ namespace smelt
 		std::string mName;
 	public:
 		explicit NamespaceNode(Parser* parser);
-		llvm::Value* CodeGen() override;
+		llvm::Value* CodeGen();
 	};
 }

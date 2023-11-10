@@ -2,43 +2,77 @@
 #include "ast/function_node.h"
 #include "code.h"
 
+#include <llvm/IR/Verifier.h>
+
 namespace smelt
 {
 	FunctionNode::FunctionNode(Parser* parser, const Type& returnType, const std::string& name)
 	{
-		mReturnType = returnType;
-		mName = name;
-		// Special case: main method.
-		if (parser->mLastToken == TokenType::KwMain)
+		mPrototype = new PrototypeNode(parser, returnType, name);
+
+		// Parse body expression.
+		if (parser->GetNextToken() == TokenType::BrOpCurly)
 		{
-			mArgs.emplace_back("", "str", true, false, -1);
+			// Start block.
+			while (parser->mLastToken != TokenType::Eof)
+			{
+				parser->GetNextToken();
+				IExpr* expr = IExpr::Parse(parser);
+
+				parser->GetNextToken();
+				if (parser->mLastToken == TokenType::BrClCurly)
+					break;
+
+				mBody = expr;
+			}
+			// End block.
+			parser->Expect(TokenType::BrClCurly);
 		}
 		else
 		{
-			parser->GetNextToken();
-			parser->Expect(TokenType::BrOpRound);
-			parser->GetNextToken();
-			while (parser->mLastToken != TokenType::Eof)
+			parser->Expect(TokenType::SySemicolon);
+		}
+
+		mPosition = ParserPosition(parser);
+	}
+
+	llvm::Function* FunctionNode::CodeGen()
+	{
+		if (!mPrototype)
+			return nullptr;
+
+		// TODO
+		// Check for existing function with the same name.
+		llvm::Function* fn = Code::Module.getFunction(mPrototype->mName);
+		if (!fn)
+			fn = Code::Module.getFunction(mPrototype->mName);
+		if (!fn)
+			return nullptr;
+
+		// Create a new basic block to start insertion into.
+		llvm::BasicBlock* block = llvm::BasicBlock::Create(Code::Context, "entry", fn);
+		Code::Builder.SetInsertPoint(block);
+
+		// Record the function arguments in the NamedValues map.
+		Code::NamedValues.clear();
+		for (auto &arg : fn->args())
+		{
+			Code::NamedValues[std::string(arg.getName())] = &arg;
+		}
+
+		if (mBody)
+		{
+			if (llvm::Value* retVal = mBody->CodeGen())
 			{
-				Type t = parser->ParseType();
+				Code::Builder.CreateRet(retVal);
+				llvm::verifyFunction(*fn);
 
-				parser->Expect(TokenType::Identifier);
-
-				mArgs.emplace_back(t);
-				if (parser->GetNextToken() == TokenType::BrClRound)
-					break;
+				return fn;
 			}
 		}
 
-		std::cout << "Parsed function \"" << mName << "\" with return type \"" << mReturnType.mName << "\" and args:\n";
-		for (auto& arg : mArgs)
-		{
-			std::cout << "\tType: " << arg.mName << "\n";
-		}
-	}
-
-	llvm::Value* FunctionNode::CodeGen()
-	{
-		return INode::CodeGen();
+		// Error reading body, remove function.
+		fn->eraseFromParent();
+		return nullptr;
 	}
 }

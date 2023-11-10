@@ -55,6 +55,7 @@ namespace smelt
 			case '-': return TokenType::SyMinus;
 			case '*': return TokenType::SyAsterisk;
 			case '\\': return TokenType::SyBackSlash;
+			case '&': return TokenType::SyAmp;
 			case '%': return TokenType::SyPercent;
 			case '=': return TokenType::SyEqual;
 			case '^': return TokenType::SyCaret;
@@ -74,7 +75,7 @@ namespace smelt
 		{
 			mLastIdentifier = (char)mLastChar;
 			mLastChar = Next();
-			while (isalnum(mLastChar))
+			while (isalnum(mLastChar) || mLastChar == '_')
 			{
 				mLastIdentifier += (char)mLastChar;
 				mLastChar = Next();

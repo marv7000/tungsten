@@ -1,5 +1,6 @@
 #include "ast/struct_node.h"
 #include <iostream>
+#include "code.h"
 
 namespace smelt
 {
@@ -12,10 +13,23 @@ namespace smelt
 		parser->Expect(TokenType::Identifier);
 		mName = parser->mLexer->GetIdentifier();
 
-		parser->GetNextToken();
-		parser->Expect(TokenType::BrOpCurly);
+		// Generic Type arguments.
+		if (parser->GetNextToken() == TokenType::SyLess)
+		{
+			while (parser->GetNextToken() != TokenType::Eof)
+			{
+				parser->Expect(TokenType::Identifier);
+				auto id = parser->mLexer->GetIdentifier();
+				mGenericTypes.emplace_back(id);
+				if (parser->GetNextToken() != TokenType::SyComma)
+					break;
+			}
+			parser->Expect(TokenType::SyMore);
+		}
 
 		// Parse fields.
+		parser->GetNextToken();
+		parser->Expect(TokenType::BrOpCurly);
 		while (parser->GetNextToken() != TokenType::BrClCurly)
 		{
 			// Get the type of the field.
@@ -31,16 +45,13 @@ namespace smelt
 
 			mFields.emplace_back(t, fieldName);
 		}
-
-		std::cout << "Parsed struct " << mName << " with fields\n";
-		for (auto& field : mFields)
-		{
-			std::cout << "\tType: " << field.mType.mName << ", Name: " << field.mName << "\n";
-		}
+		mPosition = ParserPosition(parser);
 	}
 
-	llvm::Value* StructNode::CodeGen()
+	llvm::Type* StructNode::CodeGen()
 	{
-
+		auto t = llvm::StructType::create(Code::Context, mName);
+		Code::Structs.emplace_back(t);
+		return t;
 	}
 }

@@ -1,8 +1,8 @@
 #include "parser.h"
 #include "code.h"
-#include "ast/literal_node.h"
+#include "ast/literal_expr.h"
 #include "ast/namespace_node.h"
-#include "ast/call_node.h"
+#include "ast/call_expr.h"
 #include <iostream>
 
 namespace smelt
@@ -22,37 +22,26 @@ namespace smelt
 			{
 				case TokenType::KwNamespace:
 				{
-					Code::Namespaces.emplace_back(this);
+					auto ns = NamespaceNode(this);
 					break;
 				}
 				case TokenType::KwStruct:
 				{
-					auto node = new StructNode(this);
+					Code::ParsedStructs.emplace_back(new StructNode(this));
 					break;
 				}
 				case TokenType::KwMain:
 				{
-					Type returnType{};
-					returnType.mName = "i32";
-					Code::MainFunction = new FunctionNode(this, returnType, "main");
+					Code::ParsedMainFunction = new FunctionNode(this, Type("i32"), "main");
 					break;
 				}
 				case TokenType::Identifier:
 				{
 					Type returnType = ParseType();
-					GetNextToken();
 					// Function or variable definition.
-					if (mLastToken == TokenType::Identifier)
-					{
-						std::string name = mLexer->GetIdentifier();
-						auto node = new FunctionNode(this, returnType, name);
-					}
-					// Function call.
-					if (mLastToken == TokenType::BrOpRound)
-					{
-						std::string name = mLexer->GetIdentifier();
-						auto node = new CallNode(this, name);
-					}
+					Expect(TokenType::Identifier);
+					std::string name = mLexer->GetIdentifier();
+					Code::ParsedFunctions.emplace_back(new FunctionNode(this, returnType, name));
 					break;
 				}
 				default:
@@ -244,6 +233,7 @@ namespace smelt
 		assert(index > 0); // 1-based indexing.
 		std::vector<std::string> vec;
 		std::string cur;
+		mLexer->GetStream().clear(); // Clear all errors.
 		auto pos = mLexer->GetStream().tellg(); // Save the position.
 		mLexer->GetStream().seekg(0, std::ios_base::beg); // Go to beginning.
 
@@ -254,7 +244,10 @@ namespace smelt
 		}
 
 		mLexer->GetStream().seekg(pos, std::ios_base::beg); // Go back to original position.
-		return vec[index - 1];
+		// Empty trailing lines aren't added.
+		if (index <= vec.size())
+			return vec[index - 1];
+		return {};
 	}
 
 	Type Parser::ParseType()
@@ -263,24 +256,6 @@ namespace smelt
 
 		Expect(TokenType::Identifier);
 		result.mName = mLexer->GetIdentifier();
-
-		// Built-in types don't have a namespace.
-		if (result.mName != "i8" &&
-			result.mName != "u8" &&
-			result.mName != "i16" &&
-			result.mName != "u16" &&
-			result.mName != "i32" &&
-			result.mName != "u32" &&
-			result.mName != "i64" &&
-			result.mName != "u64" &&
-			result.mName != "float" &&
-			result.mName != "double" &&
-			result.mName != "bool" &&
-			result.mName != "void"
-			)
-		{
-			result.mNamespace = mLastNamespace;
-		}
 
 		GetNextToken();
 
@@ -317,7 +292,7 @@ namespace smelt
 			GetNextToken();
 		}
 		// References.
-		if (mLastToken == TokenType::SyCaret)
+		if (mLastToken == TokenType::SyAmp)
 		{
 			result.mIsReference = true;
 			GetNextToken();

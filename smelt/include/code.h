@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <map>
 
 #include "ast/namespace_node.h"
 #include "ast/function_node.h"
+#include "ast/type.h"
 
 namespace smelt
 {
@@ -11,11 +13,16 @@ namespace smelt
 	class Code
 	{
 	public:
-		static inline llvm::LLVMContext* Context = new llvm::LLVMContext();
-		static inline llvm::IRBuilder<>* Builder = new llvm::IRBuilder<>(*Context);
-		static inline llvm::Module* Module = new llvm::Module("tungstenJIT", *Context);
+		static inline llvm::LLVMContext Context = llvm::LLVMContext();
+		static inline llvm::IRBuilder<> Builder = llvm::IRBuilder<>(Context);
+		static inline llvm::Module Module = llvm::Module("tungstenJIT", Context);
+		static inline std::vector<llvm::StructType*> Structs;
+		static inline std::vector<llvm::Function*> Functions;
+		static inline std::map<std::string, llvm::Value*> NamedValues;
+		static inline llvm::Function* MainFunction;
 
-		static inline std::vector<NamespaceNode> Namespaces;
-		static inline FunctionNode* MainFunction;
+		static inline std::vector<StructNode*> ParsedStructs;
+		static inline std::vector<FunctionNode*> ParsedFunctions;
+		static inline FunctionNode* ParsedMainFunction;
 	};
 }

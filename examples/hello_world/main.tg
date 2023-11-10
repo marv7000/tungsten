@@ -1,16 +1,8 @@
 namespace HelloWorld;
 
-struct Foo
-{
-    i32 bar;
-}
-
-void myFn(i32 foo)
-{
-
-}
+void print(i32 num);
 
 main
 {
-    print("Hello, world!");
+     //print(3);
 }

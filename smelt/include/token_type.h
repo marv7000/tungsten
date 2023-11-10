@@ -18,6 +18,7 @@ namespace smelt
 		SyAsterisk,
 		SySlash,
 		SyBackSlash,
+		SyAmp,
 		SyPercent,
 		SyEqual,
 		SyCaret,

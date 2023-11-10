@@ -35,4 +35,32 @@ namespace smelt
 
 		Type ParseType();
     };
+
+	struct ParserPosition
+	{
+		std::filesystem::path File;
+		u32 Line{};
+		u32 Col{};
+
+		ParserPosition() = default;
+		inline ParserPosition(const std::string& file, u32 line, u32 col)
+		{
+			File = file;
+			Line = line;
+			Col = col;
+		}
+		inline ParserPosition(Parser* parser)
+		{
+			File = parser->mLexer->GetPath();
+			Line = parser->mLexer->GetTokenLineNumber();
+			Col = parser->mLexer->GetTokenColNumber();
+		}
+
+		std::string String() const
+		{
+			std::stringstream s;
+			s << canonical(File).string() << ":" << Line << ":" << Col;
+			return s.str();
+		}
+	};
 }

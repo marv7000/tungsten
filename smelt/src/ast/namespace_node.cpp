@@ -15,10 +15,12 @@ namespace smelt
 		parser->Expect(TokenType::SySemicolon);
 
 		parser->mLastNamespace = mName;
+
+		mPosition = ParserPosition(parser);
 	}
 
 	llvm::Value* NamespaceNode::CodeGen()
 	{
-
+		return nullptr;
 	}
 }

@@ -4,19 +4,15 @@
 
 namespace smelt
 {
-	struct StructField
-	{
-		Type mType;
-		std::string mName;
-	};
 
 	class StructNode : public INode
 	{
 		std::string mName;
-		std::vector<StructField> mFields;
+		std::vector<NamedType> mFields;
+		std::vector<std::string> mGenericTypes;
 	public:
 		explicit StructNode(Parser* parser);
 
-		llvm::Value* CodeGen() override;
+		llvm::Type* CodeGen();
 	};
 }

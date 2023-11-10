@@ -1,15 +1,17 @@
 #pragma once
-#include "inode.h"
+#include "iexpr.h"
+#include "token_type.h"
+#include "parser.h"
 #include <string>
 
 namespace smelt
 {
-	class LiteralNode : public INode
+	class LiteralExpr : public IExpr
 	{
 		std::string mValue;
 		TokenType mLiteralType;
 	public:
-		explicit LiteralNode(Parser* parser);
+		explicit LiteralExpr(Parser* parser);
 		llvm::Value* CodeGen() override;
 	};
 }
