@@ -55,7 +55,9 @@ namespace smelt
 		auto line = mLexer->GetTokenLineNumber();
 		auto col = mLexer->GetTokenColNumber();
 		auto actual = mLastToken;
-		if (actual == type)
+
+		// Do bitwise comparison for literal bitflags.
+		if ((i32)actual & (i32)type)
 		{
 			return;
 		}
@@ -125,6 +127,10 @@ namespace smelt
 			case TokenType::SyPercent:
 			{
 				std::cerr << "Expected a '%'!\n"; break;
+			}
+			case TokenType::SyAmp:
+			{
+				std::cerr << "Expected a '&'!\n"; break;
 			}
 			case TokenType::SyEqual:
 			{
@@ -215,14 +221,16 @@ namespace smelt
 			{
 				std::cerr << "Expected a boolean literal!\n"; break;
 			}
-			case TokenType::LiNum:
-			{
-				std::cerr << "Expected a numeric literal!\n"; break;
-			}
-			case TokenType::LiAll:
-			{
-				std::cerr << "Expected a literal!\n"; break;
-			}
+			default: break;
+		}
+
+		if ((i32)type & (i32)TokenType::LiNum)
+		{
+			std::cerr << "Expected a numeric literal!\n";
+		}
+		else if ((i32)type & (i32)TokenType::LiAll)
+		{
+			std::cerr << "Expected a literal!\n";
 		}
 
 		exit(1);
@@ -303,6 +311,11 @@ namespace smelt
 
 	TokenType Parser::GetNextToken()
 	{
-		return mLastToken = mLexer->GetToken();
+		return mLastToken = mLexer->GetToken(false);
+	}
+
+	TokenType Parser::PeekNextToken() const
+	{
+		return mLexer->GetToken(true);
 	}
 }

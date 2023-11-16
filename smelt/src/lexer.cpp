@@ -13,11 +13,14 @@ namespace smelt
 		mPath = path;
 	}
 
-	TokenType Lexer::GetToken()
+	TokenType Lexer::GetToken(bool peek)
 	{
 		mLastChar = ' ';
-		mTokenStartLine = GetLineNumber();
-		mTokenStartCol = GetColNumber();
+		if (!peek)
+		{
+			mTokenStartLine = GetLineNumber();
+			mTokenStartCol = GetColNumber();
+		}
 
 		// Ignore whitespace.
 		while (isspace(mLastChar))
@@ -38,7 +41,7 @@ namespace smelt
 					mLastChar = Next();
 				}
 				if (mLastChar != EOF)
-					return GetToken();
+					return GetToken(peek);
 			}
 			return TokenType::SySlash;
 		}
@@ -98,7 +101,10 @@ namespace smelt
 			if (mLastIdentifier == "main")
 				return TokenType::KwMain;
 			if (mLastIdentifier == "true" || mLastIdentifier == "false")
+			{
+				mLastLiteral = mLastIdentifier;
 				return TokenType::LiBool;
+			}
 		}
 
 		// String literal.

@@ -16,14 +16,16 @@ namespace smelt
 			// Start block.
 			while (parser->mLastToken != TokenType::Eof)
 			{
-				parser->GetNextToken();
-				IExpr* expr = IExpr::Parse(parser);
-
-				parser->GetNextToken();
 				if (parser->mLastToken == TokenType::BrClCurly)
 					break;
 
-				mBody = expr;
+				parser->GetNextToken();
+				IExpr* expr = IExpr::Parse(parser);
+				if (expr)
+				{
+					parser->GetNextToken();
+					mBody = expr;
+				}
 			}
 			// End block.
 			parser->Expect(TokenType::BrClCurly);

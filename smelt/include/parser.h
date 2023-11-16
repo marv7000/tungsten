@@ -27,6 +27,7 @@ namespace smelt
 	    void Expect(TokenType type) const;
 
 		TokenType GetNextToken();
+		TokenType PeekNextToken() const;
 
 		/// \brief 			Gets a specific line in the file.
 		/// \param index 	The line number, 1-based index.

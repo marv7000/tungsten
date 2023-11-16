@@ -8,8 +8,9 @@ namespace smelt
 	class CallExpr : public IExpr
 	{
 		std::string mName;
-		std::vector<IExpr> mArgs;
+		std::vector<IExpr*> mArgs;
 	public:
-		explicit CallExpr(Parser* parser, std::string& name);
+		explicit CallExpr(Parser* parser, std::string& name, std::vector<IExpr*> args);
+
 	};
 }

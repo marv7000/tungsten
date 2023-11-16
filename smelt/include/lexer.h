@@ -28,8 +28,9 @@ namespace smelt
 		explicit Lexer(const std::filesystem::path& path);
 
 		/// \brief 	Get the next token in the current file.
+		/// \param peek	If the cursor should stay in place, set to true.
 		/// \return	The evaluated token, or \c TokenType::Unknown if it failed.
-		TokenType GetToken();
+		TokenType GetToken(bool peek);
 
 		/// \brief 	Gets the last scanned identifier.
 		/// \return The last identifier.

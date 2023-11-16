@@ -1,8 +1,6 @@
 namespace HelloWorld;
 
-void print(i32 num);
-
 main
 {
-     //print(3);
+    impostor("mogus", fogus);
 }

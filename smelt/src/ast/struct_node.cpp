@@ -25,13 +25,15 @@ namespace smelt
 					break;
 			}
 			parser->Expect(TokenType::SyMore);
+			parser->GetNextToken();
 		}
 
 		// Parse fields.
-		parser->GetNextToken();
 		parser->Expect(TokenType::BrOpCurly);
-		while (parser->GetNextToken() != TokenType::BrClCurly)
+		while (parser->GetNextToken() != TokenType::Eof)
 		{
+			if (parser->mLastToken != TokenType::Identifier)
+				break;
 			// Get the type of the field.
 			Type t = parser->ParseType();
 
@@ -45,6 +47,7 @@ namespace smelt
 
 			mFields.emplace_back(t, fieldName);
 		}
+		parser->Expect(TokenType::BrClCurly);
 		mPosition = ParserPosition(parser);
 	}
 

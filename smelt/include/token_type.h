@@ -4,7 +4,7 @@ namespace smelt
 {
 	enum class TokenType
 	{
-		Eof = -1,
+		Eof = 0,
 
 		Identifier,
 
