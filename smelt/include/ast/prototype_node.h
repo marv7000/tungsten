@@ -1,4 +1,6 @@
 #pragma once
+
+#include "ast/type.h"
 #include "parser.h"
 #include "ast/inode.h"
 
@@ -9,8 +11,9 @@ namespace smelt
 	public:
 		Type mReturnType;
 		std::string mName;
-		std::vector<NamedType> mArgs;
+		std::vector<Type> mArgs;
+		std::vector<std::string> mArgNames;
 		std::vector<std::string> mGenericTypes;
-		explicit PrototypeNode(Parser* parser, const Type& returnType, const std::string& name);
+		PrototypeNode(Parser* parser, const Type& returnType, const std::string& name);
 	};
 }

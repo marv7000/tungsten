@@ -34,6 +34,7 @@ namespace smelt
 		if (mLastChar == '/')
 		{
 			mLastChar = Next();
+			// Single line.
 			if (mLastChar == '/')
 			{
 				while (mLastChar != EOF && mLastChar != '\n' && mLastChar != '\r')
@@ -42,6 +43,22 @@ namespace smelt
 				}
 				if (mLastChar != EOF)
 					return GetToken(peek);
+			}
+			// Multi line.
+			else if (mLastChar == '*')
+			{
+				while (mLastChar != EOF)
+				{
+					mLastChar = Next();
+					if (mLastChar == '*')
+					{
+						mLastChar = Next();
+						if (mLastChar == '/')
+							return GetToken(peek);
+					}
+				}
+				// TODO: Handle syntax error.
+				exit(1);
 			}
 			return TokenType::SySlash;
 		}
@@ -98,8 +115,6 @@ namespace smelt
 				return TokenType::KwHeap;
 			if (mLastIdentifier == "stack")
 				return TokenType::KwStack;
-			if (mLastIdentifier == "main")
-				return TokenType::KwMain;
 			if (mLastIdentifier == "true" || mLastIdentifier == "false")
 			{
 				mLastLiteral = mLastIdentifier;
@@ -111,8 +126,29 @@ namespace smelt
 		if (mLastChar == '"')
 		{
 			mLastLiteral = "";
-			while ((mLastChar = Next()) != '"')
+			while ((mLastChar = Next()) != EOF)
 			{
+				if (mLastChar == '"')
+					break;
+				if (mLastChar == '\\')
+				{
+					mLastChar = Next();
+					switch (mLastChar)
+					{
+						case 'n':
+							mLastChar = '\n'; break;
+						case 'r':
+							mLastChar = '\r'; break;
+						case 't':
+							mLastChar = '\t'; break;
+						case '\\':
+							mLastChar = '\\'; break;
+						case '"':
+							mLastChar = '"'; break;
+						default:
+							return TokenType::LiChar;
+					}
+				}
 				mLastLiteral += (char)mLastChar;
 			}
 			return TokenType::LiString;

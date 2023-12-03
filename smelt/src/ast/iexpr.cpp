@@ -2,16 +2,30 @@
 #include "ast/iexpr.h"
 #include "ast/call_expr.h"
 #include "ast/literal_expr.h"
+#include "ast/block_expr.h"
 
 namespace smelt
 {
 	IExpr* IExpr::Parse(Parser* parser)
 	{
 		IExpr* result = nullptr;
-		while (parser->mLastToken != TokenType::Eof)
+
+		// Start Scoped expression.
+		switch (parser->mLastToken)
 		{
-			// Either a variable or function call.
-			if (parser->mLastToken == TokenType::Identifier)
+			case TokenType::BrOpCurly:
+			{
+				auto block = new BlockExpr();
+				while (parser->mLastToken != TokenType::Eof)
+				{
+					parser->GetNextToken();
+					if (parser->mLastToken == TokenType::BrClCurly)
+						break;
+					block->mExpr.emplace_back(IExpr::Parse(parser));
+				}
+				return block;
+			}
+			case TokenType::Identifier:
 			{
 				parser->GetNextToken();
 				// Function call.
@@ -50,9 +64,9 @@ namespace smelt
 					parser->GetNextToken();
 				}
 				parser->Expect(TokenType::SySemicolon);
-				parser->GetNextToken();
 			}
+			default:
+				return result;
 		}
-		return result;
 	}
 }

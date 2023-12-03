@@ -30,12 +30,14 @@ namespace smelt
 		// Check all dependencies and add every Tungsten file we can find.
 		for (auto& dep : mDependencies)
 		{
-			for (auto& pa : std::filesystem::recursive_directory_iterator(dep))
+			std::filesystem::path path = std::filesystem::path(settings->ProjectPath);
+			path += std::filesystem::path(dep);
+			for (auto& pa : std::filesystem::recursive_directory_iterator(path))
 			{
 				if (pa.path().extension() != SM_FILE_ENDING)
 					continue;
 
-				mFiles.push_back(pa.path());
+				mFiles.push_back(canonical(pa.path()));
 			}
 		}
     }

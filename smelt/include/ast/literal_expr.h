@@ -8,9 +8,9 @@ namespace smelt
 {
 	class LiteralExpr : public IExpr
 	{
+	public:
 		std::string mValue;
 		TokenType mLiteralType;
-	public:
 		explicit LiteralExpr(Parser* parser);
 		llvm::Value* CodeGen() override;
 	};

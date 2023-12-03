@@ -1,8 +1,6 @@
 #include "parser.h"
 #include "code.h"
 #include "ast/literal_expr.h"
-#include "ast/namespace_node.h"
-#include "ast/call_expr.h"
 #include <iostream>
 
 namespace smelt
@@ -20,19 +18,9 @@ namespace smelt
 		{
 			switch (mLastToken)
 			{
-				case TokenType::KwNamespace:
-				{
-					auto ns = NamespaceNode(this);
-					break;
-				}
 				case TokenType::KwStruct:
 				{
-					Code::ParsedStructs.emplace_back(new StructNode(this));
-					break;
-				}
-				case TokenType::KwMain:
-				{
-					Code::ParsedMainFunction = new FunctionNode(this, Type("i32"), "main");
+					Code::ParsedStructs.push_back(new StructNode(this));
 					break;
 				}
 				case TokenType::Identifier:
@@ -41,19 +29,23 @@ namespace smelt
 					// Function or variable definition.
 					Expect(TokenType::Identifier);
 					std::string name = mLexer->GetIdentifier();
-					Code::ParsedFunctions.emplace_back(new FunctionNode(this, returnType, name));
+					auto* func = new FunctionNode(this, returnType, name);
+					Code::ParsedFunctions.push_back(func);
+					if (name == "main")
+					{
+						Code::ParsedMainFunction = func;
+					}
 					break;
 				}
 				default:
 					break;
 			}
 		}
+		Code::Compile();
 	}
 
-	void Parser::Expect(TokenType type) const
+	void Parser::Expect(TokenType type)
 	{
-		auto line = mLexer->GetTokenLineNumber();
-		auto col = mLexer->GetTokenColNumber();
 		auto actual = mLastToken;
 
 		// Do bitwise comparison for literal bitflags.
@@ -62,177 +54,94 @@ namespace smelt
 			return;
 		}
 
-		std::cerr << "Syntax error: " << canonical(mLexer->GetPath()).string() << ":" << line << ":" << col << "\n";
-
-		// Show which token is incorrect.
-		std::cerr << line << "\t| " << GetLine(line) << "\n\t| ";
-
-		for (i32 i = 1; i < col; i++)
-		{
-			std::cerr << " ";
-		}
-
-		std::cerr << "^ ";
+		ParserPosition(this).Error();
 
 		switch (type)
 		{
 			case TokenType::Eof:
-			{
 				std::cerr << "Expected and EOF token!\n"; break;
-			}
 			case TokenType::Identifier:
-			{
 				std::cerr << "Expected an identifier!\n"; break;
-			}
 			case TokenType::SySemicolon:
-			{
 				std::cerr << "Expected a ';'!\n"; break;
-			}
 			case TokenType::SyComma:
-			{
 				std::cerr << "Expected a ','!\n"; break;
-			}
 			case TokenType::SyDot:
-			{
 				std::cerr << "Expected a '.'!\n"; break;
-			}
 			case TokenType::SyQuestionMark:
-			{
 				std::cerr << "Expected a '?'!\n"; break;
-			}
 			case TokenType::SyExclamMark:
-			{
 				std::cerr << "Expected a '!'!\n"; break;
-			}
 			case TokenType::SyPlus:
-			{
 				std::cerr << "Expected a '+'!\n"; break;
-			}
 			case TokenType::SyMinus:
-			{
 				std::cerr << "Expected a '-'!\n"; break;
-			}
 			case TokenType::SyAsterisk:
-			{
 				std::cerr << "Expected a '*'!\n"; break;
-			}
 			case TokenType::SySlash:
-			{
 				std::cerr << "Expected a '/'!\n"; break;
-			}
 			case TokenType::SyBackSlash:
-			{
 				std::cerr << "Expected a '\\'!\n"; break;
-			}
 			case TokenType::SyPercent:
-			{
 				std::cerr << "Expected a '%'!\n"; break;
-			}
 			case TokenType::SyAmp:
-			{
 				std::cerr << "Expected a '&'!\n"; break;
-			}
 			case TokenType::SyEqual:
-			{
 				std::cerr << "Expected a '='!\n"; break;
-			}
 			case TokenType::SyCaret:
-			{
 				std::cerr << "Expected a '^'!\n"; break;
-			}
 			case TokenType::SyLess:
-			{
 				std::cerr << "Expected a '<'!\n"; break;
-			}
 			case TokenType::SyMore:
-			{
 				std::cerr << "Expected a '>'!\n"; break;
-			}
 			case TokenType::BrOpRound:
-			{
 				std::cerr << "Expected a '('!\n"; break;
-			}
 			case TokenType::BrClRound:
-			{
 				std::cerr << "Expected a ')'!\n"; break;
-			}
 			case TokenType::BrOpSquare:
-			{
 				std::cerr << "Expected a '['!\n"; break;
-			}
 			case TokenType::BrClSquare:
-			{
 				std::cerr << "Expected a ']'!\n"; break;
-			}
 			case TokenType::BrOpCurly:
-			{
 				std::cerr << "Expected a '{'!\n"; break;
-			}
 			case TokenType::BrClCurly:
-			{
 				std::cerr << "Expected a '}'!\n"; break;
-			}
 			case TokenType::KwInclude:
-			{
 				std::cerr << "Expected the \"include\" keyword!\n"; break;
-			}
 			case TokenType::KwNamespace:
-			{
 				std::cerr << "Expected the \"namespace\" keyword!\n"; break;
-			}
 			case TokenType::KwReturn:
-			{
 				std::cerr << "Expected the \"return\" keyword!\n"; break;
-			}
 			case TokenType::KwStruct:
-			{
 				std::cerr << "Expected the \"struct\" keyword!\n"; break;
-			}
 			case TokenType::KwHeap:
-			{
 				std::cerr << "Expected the \"heap\" keyword!\n"; break;
-			}
 			case TokenType::KwStack:
-			{
 				std::cerr << "Expected the \"stack\" keyword!\n"; break;
-			}
 			case TokenType::KwMain:
-			{
 				std::cerr << "Expected the \"main\" keyword!\n"; break;
-			}
 			case TokenType::LiString:
-			{
 				std::cerr << "Expected a string literal!\n"; break;
-			}
 			case TokenType::LiChar:
-			{
 				std::cerr << "Expected a character literal!\n"; break;
-			}
 			case TokenType::LiInt:
-			{
 				std::cerr << "Expected an integer literal!\n"; break;
-			}
 			case TokenType::LiFloat:
 			case TokenType::LiDouble:
-			{
 				std::cerr << "Expected a floating point literal!\n"; break;
-			}
 			case TokenType::LiBool:
-			{
 				std::cerr << "Expected a boolean literal!\n"; break;
-			}
-			default: break;
+			default:
+				std::cerr << "Expected an expression!\n"; break;
 		}
 
-		if ((i32)type & (i32)TokenType::LiNum)
+		if (type != TokenType::Eof)
 		{
-			std::cerr << "Expected a numeric literal!\n";
+			if (((i32)type & (i32)TokenType::LiNum) == (i32)TokenType::LiNum)
+				std::cerr << "Expected a numeric literal!\n";
+			else if (((i32)type & (i32)TokenType::LiAll) == (i32)TokenType::LiAll)
+				std::cerr << "Expected a literal!\n";
 		}
-		else if ((i32)type & (i32)TokenType::LiAll)
-		{
-			std::cerr << "Expected a literal!\n";
-		}
-
 		exit(1);
 	}
 
@@ -318,4 +227,5 @@ namespace smelt
 	{
 		return mLexer->GetToken(true);
 	}
+
 }

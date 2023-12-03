@@ -1,9 +1,8 @@
 #pragma once
+
 #include "shared.h"
 #include "lexer.h"
 #include "ast/type.h"
-
-#include <llvm/IR/IRBuilder.h>
 
 namespace smelt
 {
@@ -24,10 +23,10 @@ namespace smelt
 
 	    /// \brief 		Expect the next token in the stream to be a certain type. If it isn't, throw a fitting message.
 	    /// \param type The type to check for.
-	    void Expect(TokenType type) const;
+	    void Expect(TokenType type);
 
 		TokenType GetNextToken();
-		TokenType PeekNextToken() const;
+		[[nodiscard]] TokenType PeekNextToken() const;
 
 		/// \brief 			Gets a specific line in the file.
 		/// \param index 	The line number, 1-based index.
@@ -36,32 +35,4 @@ namespace smelt
 
 		Type ParseType();
     };
-
-	struct ParserPosition
-	{
-		std::filesystem::path File;
-		u32 Line{};
-		u32 Col{};
-
-		ParserPosition() = default;
-		inline ParserPosition(const std::string& file, u32 line, u32 col)
-		{
-			File = file;
-			Line = line;
-			Col = col;
-		}
-		inline ParserPosition(Parser* parser)
-		{
-			File = parser->mLexer->GetPath();
-			Line = parser->mLexer->GetTokenLineNumber();
-			Col = parser->mLexer->GetTokenColNumber();
-		}
-
-		std::string String() const
-		{
-			std::stringstream s;
-			s << canonical(File).string() << ":" << Line << ":" << Col;
-			return s.str();
-		}
-	};
 }

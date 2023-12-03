@@ -2,9 +2,11 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/IRBuilder.h>
 
-#include "ast/namespace_node.h"
 #include "ast/function_node.h"
+#include "ast/struct_node.h"
 #include "ast/type.h"
 
 namespace smelt
@@ -24,5 +26,10 @@ namespace smelt
 		static inline std::vector<StructNode*> ParsedStructs;
 		static inline std::vector<FunctionNode*> ParsedFunctions;
 		static inline FunctionNode* ParsedMainFunction;
+
+		static llvm::Type* TypeGen(const Type& s);
+
+		/// \brief 	Compile all parsed code.
+		static void Compile();
 	};
 }

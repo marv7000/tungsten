@@ -32,8 +32,10 @@ namespace smelt
 		parser->Expect(TokenType::BrOpCurly);
 		while (parser->GetNextToken() != TokenType::Eof)
 		{
-			if (parser->mLastToken != TokenType::Identifier)
+			if (parser->mLastToken == TokenType::BrClCurly)
 				break;
+
+			parser->Expect(TokenType::Identifier);
 			// Get the type of the field.
 			Type t = parser->ParseType();
 
@@ -45,16 +47,21 @@ namespace smelt
 			parser->GetNextToken();
 			parser->Expect(TokenType::SySemicolon);
 
-			mFields.emplace_back(t, fieldName);
+			mFields.emplace_back(t);
+			mFieldNames.emplace_back(fieldName);
 		}
 		parser->Expect(TokenType::BrClCurly);
 		mPosition = ParserPosition(parser);
 	}
 
-	llvm::Type* StructNode::CodeGen()
+	llvm::StructType* StructNode::CodeGen()
 	{
-		auto t = llvm::StructType::create(Code::Context, mName);
-		Code::Structs.emplace_back(t);
+		auto types = std::vector<llvm::Type*>();
+		for (const auto & field : mFields)
+		{
+			types.push_back(Code::TypeGen(field));
+		}
+		auto t = llvm::StructType::create(Code::Context, types, mName);
 		return t;
 	}
 }

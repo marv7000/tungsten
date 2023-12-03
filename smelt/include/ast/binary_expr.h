@@ -1,6 +1,6 @@
 #pragma once
-#include "iexpr.h"
 #include "parser.h"
+#include "iexpr.h"
 
 namespace smelt
 {

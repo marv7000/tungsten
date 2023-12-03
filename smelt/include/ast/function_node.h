@@ -2,20 +2,20 @@
 #include <string>
 #include <vector>
 #include "parser.h"
-#include "inode.h"
-#include "type.h"
-#include "binary_expr.h"
-#include "prototype_node.h"
+#include "ast/inode.h"
+#include "ast/iexpr.h"
+#include "ast/prototype_node.h"
+#include "ast/type.h"
 
 namespace smelt
 {
 	class FunctionNode : public INode
 	{
+	public:
 		PrototypeNode* mPrototype{};
 		/// \brief 	Expression to execute or an extern function if null.
 		IExpr* mBody{};
-	public:
-		explicit FunctionNode(Parser* parser, const Type& returnType, const std::string& name);
+		FunctionNode(Parser* parser, const Type& returnType, const std::string& name);
 
 		llvm::Function* CodeGen();
 	};

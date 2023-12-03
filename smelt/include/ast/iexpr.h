@@ -1,6 +1,6 @@
 #pragma once
-#include <llvm/IR/Value.h>
 #include "parser.h"
+#include <llvm/IR/Value.h>
 
 namespace smelt
 {

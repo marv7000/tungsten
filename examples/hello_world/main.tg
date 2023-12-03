@@ -1,6 +1,10 @@
-namespace HelloWorld;
-
-main
+struct Foo
 {
-    impostor("mogus", fogus);
+    float aFloat;
+    i32 foobar;
+}
+
+i32 foo()
+{
+    print();
 }
