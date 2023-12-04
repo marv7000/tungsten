@@ -9,6 +9,7 @@ namespace smelt
 	{
 		mName = name;
 		mArgs = std::move(args);
+		mPosition = ParserPosition(parser);
 	}
 
 	llvm::Value *CallExpr::CodeGen()
@@ -16,7 +17,8 @@ namespace smelt
 		llvm::Function* callee = Code::Module.getFunction(mName);
 		if (!callee)
 		{
-			std::cerr << "Function \"" << mName << "\" was not found\n";
+			mPosition.Error();
+			std::cerr << "Function \"" << mName << "\" was not found!\n";
 		}
 
 		// If argument mismatch error.
@@ -32,6 +34,6 @@ namespace smelt
 				return nullptr;
 		}
 
-		return Code::Builder.CreateCall(callee, argsVec, "calltmp");
+		return Code::Builder.CreateCall(callee, argsVec);
 	}
 }

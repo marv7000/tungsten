@@ -25,6 +25,7 @@ namespace smelt
         ProjectType mType;
         std::vector<std::string> mDependencies;
 		std::vector<std::filesystem::path> mFiles;
+		static inline std::string IntermediatePath;
 
     public:
         explicit Project(Settings* settings);

@@ -3,13 +3,15 @@
 #include "ast/call_expr.h"
 #include "ast/literal_expr.h"
 #include "ast/block_expr.h"
+#include "parser_position.h"
+#include "ast/int_literal_expr.h"
+#include "ast/return_expr.h"
+#include "ast/string_literal_expr.h"
 
 namespace smelt
 {
 	IExpr* IExpr::Parse(Parser* parser)
 	{
-		IExpr* result = nullptr;
-
 		// Start Scoped expression.
 		switch (parser->mLastToken)
 		{
@@ -21,7 +23,7 @@ namespace smelt
 					parser->GetNextToken();
 					if (parser->mLastToken == TokenType::BrClCurly)
 						break;
-					block->mExpr.emplace_back(IExpr::Parse(parser));
+					block->mExpr.push_back(IExpr::Parse(parser));
 				}
 				return block;
 			}
@@ -42,31 +44,51 @@ namespace smelt
 						if (parser->mLastToken == TokenType::BrClRound)
 							break;
 						// Literal or identifier.
-						if (parser->mLastToken == TokenType::Identifier)
-							args.emplace_back(IExpr::Parse(parser));
-						if ((i32)parser->mLastToken & (i32)TokenType::LiAll)
-							args.emplace_back(new LiteralExpr(parser));
+						args.push_back(IExpr::Parse(parser));
 						parser->GetNextToken();
 					}
 					parser->GetNextToken();
-					result = new CallExpr(parser, callee, args);
+					return new CallExpr(parser, callee, args);
 				}
-				// Variable assignment.
+				// TODO: Variable assignment.
 				else if (parser->mLastToken == TokenType::SyEqual)
 				{
 					std::string id = parser->mLexer->GetIdentifier();
 
 					parser->GetNextToken();
 				}
-				// Variable declaration.
+				// TODO: Variable declaration.
 				else if (parser->mLastToken == TokenType::Identifier)
 				{
 					parser->GetNextToken();
 				}
 				parser->Expect(TokenType::SySemicolon);
+				return nullptr;
+			}
+			case TokenType::KwReturn:
+			{
+				return new ReturnExpr(parser);
+			}
+			case TokenType::LiInt:
+			{
+				return new IntLiteralExpr(parser);
+			}
+			case TokenType::LiString:
+			{
+				return new StringLiteralExpr(parser);
+			}
+			case TokenType::LiChar:
+			case TokenType::LiBool:
+			case TokenType::LiFloat:
+			case TokenType::LiDouble:
+			{
+				return new LiteralExpr(parser);
 			}
 			default:
-				return result;
+				auto pos = ParserPosition(parser);
+				pos.Error();
+				std::cerr << "Expected an expression.";
+				exit(1);
 		}
 	}
 }

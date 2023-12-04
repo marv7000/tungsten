@@ -1,19 +1,15 @@
 #include "ast/block_expr.h"
+#include "code.h"
 
 namespace smelt
 {
 	llvm::Value* BlockExpr::CodeGen()
 	{
-		IExpr* last = nullptr;
+		llvm::Value* last;
 		for (auto expr : mExpr)
 		{
-			expr->CodeGen();
-			last = expr;
+			last = expr->CodeGen();
 		}
-		if (!last)
-		{
-			return nullptr;
-		}
-		return last->CodeGen();
+		return last;
 	}
 }

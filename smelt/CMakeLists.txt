@@ -22,6 +22,12 @@ add_executable(smelt
         include/parser_position.h
         src/parser_position.cpp
         src/ast/type.cpp
+        src/ast/int_literal_expr.cpp
+        include/ast/int_literal_expr.h
+        src/ast/return_expr.cpp
+        include/ast/return_expr.h
+        src/ast/string_literal_expr.cpp
+        include/ast/string_literal_expr.h
 )
 target_include_directories(smelt PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")

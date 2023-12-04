@@ -13,7 +13,8 @@ namespace smelt
 		std::string mName;
 		std::vector<Type> mArgs;
 		std::vector<std::string> mArgNames;
-		std::vector<std::string> mGenericTypes;
+		std::vector<Type> mGenericTypes;
 		PrototypeNode(Parser* parser, const Type& returnType, const std::string& name);
+		std::string Mangle();
 	};
 }

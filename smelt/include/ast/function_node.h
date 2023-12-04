@@ -12,11 +12,11 @@ namespace smelt
 	class FunctionNode : public INode
 	{
 	public:
+		/// \brief 	The declaration of the function.
 		PrototypeNode* mPrototype{};
 		/// \brief 	Expression to execute or an extern function if null.
 		IExpr* mBody{};
 		FunctionNode(Parser* parser, const Type& returnType, const std::string& name);
-
 		llvm::Function* CodeGen();
 	};
 }

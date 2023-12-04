@@ -1,10 +1,4 @@
-struct Foo
+i32 main(i32 argc, i8[]& argv)
 {
-    float aFloat;
-    i32 foobar;
-}
-
-i32 foo()
-{
-    print();
+    return 0;
 }

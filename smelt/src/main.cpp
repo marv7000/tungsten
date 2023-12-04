@@ -1,12 +1,11 @@
 #include <iostream>
-#include <filesystem>
+#include <cassert>
 
 #include "llvm/TargetParser/Host.h"
 
 #include "shared.h"
 #include "project.h"
 #include "settings.h"
-#include <llvm/TargetParser/Host.h>
 
 using namespace smelt;
 
@@ -55,7 +54,7 @@ i32 main(const i32 argc, const i8** argv)
 	if (!settings->Quiet)
 		std::cout << SM_PREFIX "Building "
 		<< ((project->mType == smelt::ProjectType::Application) ? "application" : "library")
-		<< " \"" << project->mName << "\" for " << settings->CompileTarget << "\n";
+		<< " \"" << project->mName << "\" for " << settings->CompileTarget << "\n\n";
 	project->Compile();
 	
 	// Cleanup.

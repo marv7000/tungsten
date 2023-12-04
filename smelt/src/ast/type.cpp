@@ -39,29 +39,4 @@ namespace smelt
 		mIsArray = array;
 		mArraySize = arraySize;
 	}
-
-	bool Type::IsBuiltIn() const
-	{
-		if (!mNamespace.empty())
-			return false;
-
-		if (mName != "i8" &&
-		    mName != "u8" &&
-		    mName != "i16" &&
-		    mName != "u16" &&
-		    mName != "i32" &&
-		    mName != "u32" &&
-		    mName != "i64" &&
-		    mName != "u64" &&
-		    mName != "isize" &&
-		    mName != "usize" &&
-		    mName != "float" &&
-		    mName != "double" &&
-		    mName != "bool" &&
-		    mName != "void"
-				)
-			return false;
-
-		return true;
-	}
 }

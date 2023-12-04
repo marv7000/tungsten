@@ -27,7 +27,10 @@ namespace smelt
 		{
 			mLastChar = Next();
 			if (mStream.fail())
+			{
+				mStream.exceptions();
 				return TokenType::Eof;
+			}
 		}
 
 		// Comments.
@@ -91,7 +94,7 @@ namespace smelt
 		}
 
 		// Alphanumeric tokens.
-		if (isalpha(mLastChar))
+		if (isalpha(mLastChar) || mLastChar == '_')
 		{
 			mLastIdentifier = (char)mLastChar;
 			mLastChar = Next();

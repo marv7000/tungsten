@@ -1,6 +1,7 @@
 #pragma once
 #include "iexpr.h"
 #include "parser.h"
+#include "parser_position.h"
 
 namespace smelt
 {
@@ -12,5 +13,7 @@ namespace smelt
 		std::vector<IExpr*> mArgs;
 		CallExpr(Parser* parser, std::string& name, std::vector<IExpr*> args);
 		llvm::Value* CodeGen() override;
+
+		ParserPosition mPosition;
 	};
 }

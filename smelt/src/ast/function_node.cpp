@@ -1,8 +1,10 @@
 #include <iostream>
 #include "ast/function_node.h"
 #include "code.h"
+#include "project.h"
 
 #include <llvm/IR/Verifier.h>
+#include <llvm/Support/FileSystem.h>
 
 namespace smelt
 {
@@ -10,16 +12,12 @@ namespace smelt
 	{
 		mPrototype = new PrototypeNode(parser, returnType, name);
 		parser->GetNextToken();
-		if (parser->mLastToken != TokenType::SySemicolon)
+		if (parser->mLastToken == TokenType::SySemicolon)
 		{
-			IExpr* expr = IExpr::Parse(parser);
-			if (expr)
-			{
-				mBody = expr;
-			}
+			return;
 		}
-
 		mPosition = ParserPosition(parser);
+		mBody = IExpr::Parse(parser);
 	}
 
 	llvm::Function* FunctionNode::CodeGen()
@@ -33,7 +31,7 @@ namespace smelt
 		if (fn)
 		{
 			mPosition.Error();
-			std::cerr << "Function " << mPrototype->mName << " has already been defined.";
+			std::cerr << "Function \"" << mPrototype->mName << "\" has already been defined.";
 			exit(1);
 		}
 
@@ -41,14 +39,14 @@ namespace smelt
 		std::vector<llvm::Type*> argTypes;
 		for (auto& arg : mPrototype->mArgs)
 		{
-			argTypes.emplace_back(Code::TypeGen(arg));
+			argTypes.push_back(Code::TypeGen(arg));
 		}
 		auto retType = Code::TypeGen(mPrototype->mReturnType);
 		llvm::FunctionType* fnType = llvm::FunctionType::get(retType, argTypes, false);
 
 		if (mBody)
 		{
-			fn = llvm::Function::Create(fnType, llvm::Function::CommonLinkage, mPrototype->mName);
+			fn = llvm::Function::Create(fnType, llvm::Function::LinkageTypes::LinkOnceAnyLinkage, mPrototype->Mangle(), Code::Module);
 			// Record the function arguments in the NamedValues map.
 			Code::NamedValues.clear();
 			for (auto &arg : fn->args())
@@ -62,11 +60,15 @@ namespace smelt
 			llvm::Value* retVal = mBody->CodeGen();
 			if (retVal)
 			{
-				Code::Builder.CreateRet(retVal);
-				fn->print(llvm::outs());
-				llvm::verifyFunction(*fn);
+				std::error_code ec;
+				llvm::raw_fd_ostream stream(Project::IntermediatePath, ec, llvm::sys::fs::OF_Append);
+				fn->print(stream);
 
-				Code::Functions.emplace_back(fn);
+				// TODO: Fix error
+				assert(!llvm::verifyModule(Code::Module, &llvm::errs()));
+				assert(!llvm::verifyFunction(*fn, &llvm::errs()));
+
+				Code::Functions.push_back(fn);
 				return fn;
 			}
 			return nullptr;
@@ -74,8 +76,13 @@ namespace smelt
 		// External linkage.
 		else
 		{
-			fn = llvm::Function::Create(fnType, llvm::Function::ExternalLinkage, mPrototype->mName, Code::Module);
-			Code::Functions.emplace_back(fn);
+			fn = llvm::Function::Create(fnType, llvm::Function::ExternalLinkage, mPrototype->Mangle(), Code::Module);
+			std::error_code ec;
+			llvm::raw_fd_ostream stream(Project::IntermediatePath, ec, llvm::sys::fs::OF_Append);
+			fn->print(stream);
+			assert(!llvm::verifyModule(Code::Module, &llvm::errs()));
+			assert(!llvm::verifyFunction(*fn, &llvm::errs()));
+			Code::Functions.push_back(fn);
 			return fn;
 		}
 

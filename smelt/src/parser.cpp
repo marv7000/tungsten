@@ -31,10 +31,6 @@ namespace smelt
 					std::string name = mLexer->GetIdentifier();
 					auto* func = new FunctionNode(this, returnType, name);
 					Code::ParsedFunctions.push_back(func);
-					if (name == "main")
-					{
-						Code::ParsedMainFunction = func;
-					}
 					break;
 				}
 				default:
@@ -49,7 +45,7 @@ namespace smelt
 		auto actual = mLastToken;
 
 		// Do bitwise comparison for literal bitflags.
-		if ((i32)actual & (i32)type)
+		if (actual == type)
 		{
 			return;
 		}
@@ -157,10 +153,12 @@ namespace smelt
 		// Read every line into vec.
 		while (std::getline(mLexer->GetStream(), cur))
 		{
-			vec.emplace_back(cur);
+			vec.push_back(cur);
 		}
 
+		mLexer->GetStream().clear(); // Clear all errors.
 		mLexer->GetStream().seekg(pos, std::ios_base::beg); // Go back to original position.
+
 		// Empty trailing lines aren't added.
 		if (index <= vec.size())
 			return vec[index - 1];

@@ -23,8 +23,6 @@ namespace smelt
 		/// \return			\c true if both are equal, otherwise false.
 		bool operator ==(const Type& other) const;
 
-		[[nodiscard]] bool IsBuiltIn() const;
-
 		std::string Mangle();
 	};
 }

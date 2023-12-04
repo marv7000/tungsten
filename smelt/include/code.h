@@ -17,7 +17,7 @@ namespace smelt
 	public:
 		static inline llvm::LLVMContext Context = llvm::LLVMContext();
 		static inline llvm::IRBuilder<> Builder = llvm::IRBuilder<>(Context);
-		static inline llvm::Module Module = llvm::Module("tungstenJIT", Context);
+		static inline llvm::Module Module = llvm::Module("tungsten", Context);
 		static inline std::vector<llvm::StructType*> Structs;
 		static inline std::vector<llvm::Function*> Functions;
 		static inline std::map<std::string, llvm::Value*> NamedValues;

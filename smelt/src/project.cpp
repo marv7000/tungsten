@@ -2,6 +2,7 @@
 #include "config.h"
 #include "parser.h"
 #include "lexer.h"
+#include "code.h"
 
 #include <cassert>
 #include <iostream>
@@ -44,6 +45,15 @@ namespace smelt
 
 	void Project::Compile()
 	{
+		auto p = std::filesystem::path(mSettings->ProjectPath + "/out/");
+
+		if (std::filesystem::is_directory(p) || std::filesystem::exists(p))
+		{
+			std::filesystem::remove_all(p);
+		}
+		std::filesystem::create_directory(p);
+		IntermediatePath = p.replace_filename(mName + ".ll");
+
 		// For each file.
 		for (auto& file : mFiles)
 		{
