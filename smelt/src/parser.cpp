@@ -169,7 +169,8 @@ namespace smelt
 	{
 		Type result{};
 
-		Expect(TokenType::Identifier);
+		if (mLastToken != TokenType::Identifier)
+			return Type("void");
 		result.mName = mLexer->GetIdentifier();
 
 		GetNextToken();
@@ -207,9 +208,9 @@ namespace smelt
 			GetNextToken();
 		}
 		// References.
-		if (mLastToken == TokenType::SyAmp)
+		while (mLastToken == TokenType::SyAmp)
 		{
-			result.mIsReference = true;
+			result.mReferenceLevel++;
 			GetNextToken();
 		}
 

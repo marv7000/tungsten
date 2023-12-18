@@ -7,16 +7,15 @@ namespace smelt
 {
 	struct Type
 	{
-		std::string mNamespace;
 		std::string mName;
 		bool mIsArray{};
-		bool mIsReference{};
+		i64 mReferenceLevel{};
 		i64 mArraySize = -1;
 		std::vector<Type> mGenericTypes;
 
 		Type() = default;
 
-		explicit Type(const std::string& name, bool ref = false, bool array = false, i64 arraySize = -1);
+		explicit Type(const std::string& name, i64 ref = 0, bool array = false, i64 arraySize = -1);
 
 		/// \brief 			Compares two Types.
 		/// \param other 	The type to compare to.

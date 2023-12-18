@@ -1,6 +1,7 @@
 #pragma once
 #include "iexpr.h"
 #include "parser.h"
+#include "parser_position.h"
 
 namespace smelt
 {
@@ -8,8 +9,10 @@ namespace smelt
 	{
 		Type mType;
 		std::string mName;
+		ParserPosition mPosition;
+		IExpr* mValue;
 	public:
-		explicit VariableExpr(Parser* parser);
+		VariableExpr(Parser* parser, const Type& type, const std::string& name, IExpr* value);
 		llvm::Value* CodeGen() override;
 	};
 }

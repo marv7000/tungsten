@@ -21,6 +21,7 @@ namespace smelt
 		static inline std::vector<llvm::StructType*> Structs;
 		static inline std::vector<llvm::Function*> Functions;
 		static inline std::map<std::string, llvm::Value*> NamedValues;
+		static inline std::map<std::string, IExpr*> VariableNames;
 		static inline llvm::Function* MainFunction;
 
 		static inline std::vector<StructNode*> ParsedStructs;

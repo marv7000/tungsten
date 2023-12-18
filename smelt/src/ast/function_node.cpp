@@ -46,12 +46,16 @@ namespace smelt
 
 		if (mBody)
 		{
-			fn = llvm::Function::Create(fnType, llvm::Function::LinkageTypes::LinkOnceAnyLinkage, mPrototype->Mangle(), Code::Module);
+			fn = llvm::Function::Create(fnType, llvm::Function::LinkageTypes::ExternalLinkage, mPrototype->Mangle(), Code::Module);
 			// Record the function arguments in the NamedValues map.
 			Code::NamedValues.clear();
 			for (auto &arg : fn->args())
 			{
 				Code::NamedValues[std::string(arg.getName())] = &arg;
+			}
+			for (auto& arg : Code::VariableNames)
+			{
+				Code::NamedValues[arg.first] = arg.second->CodeGen();
 			}
 
 			// Create a new basic block to start insertion into.

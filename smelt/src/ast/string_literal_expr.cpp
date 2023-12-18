@@ -1,6 +1,8 @@
 #include "ast/string_literal_expr.h"
 #include "code.h"
+#include "project.h"
 #include <llvm/IR/Constants.h>
+#include <llvm/Support/FileSystem.h>
 
 namespace smelt
 {
@@ -12,13 +14,11 @@ namespace smelt
 
 	llvm::Value* StringLiteralExpr::CodeGen()
 	{
-		//auto arrayType = llvm::ArrayType::get(llvm::Type::getInt8Ty(Code::Context), mValue.size());
-		std::vector<llvm::Constant*> data;
-		for (auto& ch : mValue)
-		{
-			data.push_back(llvm::ConstantInt::get(llvm::Type::getInt8Ty(Code::Context), ch));
-		}
-		auto constStr = llvm::ConstantVector::get(data);
-		return constStr;
+		auto str = Code::Builder.CreateGlobalStringPtr(llvm::StringRef(mValue), "", 0, &Code::Module);
+
+		std::error_code ec;
+		llvm::raw_fd_ostream stream(Project::IntermediatePath, ec, llvm::sys::fs::OF_Append);
+		str->print(stream);
+		return str;
 	}
 }

@@ -1,4 +1,7 @@
+void puts(i8[] str);
+
 i32 main(i32 argc, i8[]& argv)
 {
+    puts("Hello, World!");
     return 0;
 }

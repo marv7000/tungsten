@@ -12,13 +12,14 @@ namespace smelt
 		mPosition = ParserPosition(parser);
 	}
 
-	llvm::Value *CallExpr::CodeGen()
+	llvm::Value* CallExpr::CodeGen()
 	{
 		llvm::Function* callee = Code::Module.getFunction(mName);
 		if (!callee)
 		{
 			mPosition.Error();
 			std::cerr << "Function \"" << mName << "\" was not found!\n";
+			exit(1);
 		}
 
 		// If argument mismatch error.

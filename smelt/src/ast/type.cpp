@@ -6,7 +6,6 @@ namespace smelt
 	std::string Type::Mangle()
 	{
 		std::stringstream s;
-		s << mNamespace << "::" << mName << "::";
 		if (!mGenericTypes.empty())
 		{
 			s << "+" << mGenericTypes.size();
@@ -16,10 +15,9 @@ namespace smelt
 
 	bool Type::operator==(const Type &other) const
 	{
-		bool cmp = (mNamespace == other.mNamespace &&
-		            mName == other.mName &&
+		bool cmp = (mName == other.mName &&
 		            mIsArray == other.mIsArray &&
-		            mIsReference == other.mIsReference &&
+		            mReferenceLevel == other.mReferenceLevel &&
 		            mArraySize == other.mArraySize);
 
 		if (mGenericTypes.size() != other.mGenericTypes.size())
@@ -32,10 +30,10 @@ namespace smelt
 		return cmp;
 	}
 
-	Type::Type(const std::string &name, bool ref, bool array, i64 arraySize)
+	Type::Type(const std::string &name, i64 ref, bool array, i64 arraySize)
 	{
 		mName = name;
-		mIsReference = ref;
+		mReferenceLevel = ref;
 		mIsArray = array;
 		mArraySize = arraySize;
 	}

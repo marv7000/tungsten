@@ -14,17 +14,8 @@ namespace smelt
 		for (auto function : Code::ParsedFunctions)
 		{
 			auto* fun = function->CodeGen();
-			if (fun->getName().str() == "main")
-			{
-				Code::ParsedMainFunction = function;
-			}
 			Code::Functions.push_back(fun);
 		}
-		//if (!Code::ParsedMainFunction)
-		//{
-		//	std::cerr << "Could not find an entry point!\n";
-		//	exit(1);
-		//}
 	}
 
 	llvm::Type* Code::TypeGen(const Type& s)
@@ -70,11 +61,11 @@ namespace smelt
 		if (s.mIsArray)
 		{
 			if (s.mArraySize == -1)
-				result = llvm::VectorType::get(result, 0, true);
+				result = llvm::PointerType::get(result, 0);
 			else
-				result = llvm::VectorType::get(result, s.mArraySize, false);
+				result = llvm::ArrayType::get(result, s.mArraySize);
 		}
-		if (s.mIsReference)
+		if (s.mReferenceLevel != 0)
 			result = llvm::PointerType::get(result, 0);
 
 		return result;

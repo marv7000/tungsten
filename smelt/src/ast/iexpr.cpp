@@ -7,6 +7,8 @@
 #include "ast/int_literal_expr.h"
 #include "ast/return_expr.h"
 #include "ast/string_literal_expr.h"
+#include "code.h"
+#include "ast/variable_expr.h"
 
 namespace smelt
 {
@@ -29,41 +31,54 @@ namespace smelt
 			}
 			case TokenType::Identifier:
 			{
+				std::string id = parser->mLexer->GetIdentifier();
 				parser->GetNextToken();
 				// Function call.
 				if (parser->mLastToken == TokenType::BrOpRound)
 				{
-					std::string callee = parser->mLexer->GetIdentifier();
 					std::vector<IExpr*> args;
 
 					// Call arguments.
-					parser->GetNextToken();
 					while (parser->mLastToken != TokenType::Eof)
 					{
 						// No args.
 						if (parser->mLastToken == TokenType::BrClRound)
 							break;
+						parser->GetNextToken();
 						// Literal or identifier.
 						args.push_back(IExpr::Parse(parser));
 						parser->GetNextToken();
 					}
 					parser->GetNextToken();
-					return new CallExpr(parser, callee, args);
+					return new CallExpr(parser, id, args);
+				}
+				auto type = parser->ParseType();
+				if (Code::VariableNames.contains(id))
+				{
+					return Code::VariableNames[id];
 				}
 				// TODO: Variable assignment.
 				else if (parser->mLastToken == TokenType::SyEqual)
 				{
-					std::string id = parser->mLexer->GetIdentifier();
-
 					parser->GetNextToken();
+					IExpr* expr = IExpr::Parse(parser);
+					parser->GetNextToken();
+					parser->Expect(TokenType::SySemicolon);
+					return new VariableExpr(parser, type, id, expr);
 				}
-				// TODO: Variable declaration.
 				else if (parser->mLastToken == TokenType::Identifier)
 				{
+					std::string name = parser->mLexer->GetIdentifier();
 					parser->GetNextToken();
+					IExpr* expr = IExpr::Parse(parser);
+					parser->GetNextToken();
+					parser->Expect(TokenType::SySemicolon);
+					return new VariableExpr(parser, type, name, expr);
 				}
-				parser->Expect(TokenType::SySemicolon);
-				return nullptr;
+				else
+				{
+					return new VariableExpr(parser, type, id, nullptr);
+				}
 			}
 			case TokenType::KwReturn:
 			{
